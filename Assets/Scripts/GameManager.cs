@@ -2,6 +2,7 @@
 using NPOI.XSSF.UserModel;
 using System.Collections;
 using System.IO;
+using TMPro;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -13,11 +14,13 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private GameObject infoTxt;
 
+    [SerializeField] private GameObject loadMenu;
+
     public static GameManager inst;
 
     public static string Path;
 
-    private void Awake()
+    private async void Awake()
     {
         inst = this;
 
@@ -25,7 +28,7 @@ public class GameManager : MonoBehaviour
 
         // 2 PIN, 83 Language
         Loader.FileLoaded += FileLoaded;
-        Loader.GetFile(83);
+        await Loader.GetFile(83);
     }
 
     private XSSFWorkbook wk;
@@ -33,14 +36,14 @@ public class GameManager : MonoBehaviour
 
     private ISheet sheet;           // Рабочий лист
     private IRow row;               //Строка
-    private ICell cell;             // Столбец
 
     private void FileLoaded(bool val)
     {
         Loader.FileLoaded -= FileLoaded;
 
-        if (val)
-            StartCoroutine(InfoCor());
+        Destroy(loadMenu);
+
+        StartCoroutine(InfoCor(val));
 
         if (!File.Exists(Path)) return;
 
@@ -49,12 +52,17 @@ public class GameManager : MonoBehaviour
 
         // creating bottom pages
 
+        int index = PlayerPrefs.GetInt("Index") == 0 ? 1 : PlayerPrefs.GetInt("Index");
+
+        if (index > wk.NumberOfSheets)
+            index = 1;
+
         for (int i = 1; i < wk.NumberOfSheets; i++)
         {
-            pages.CreateSheet(wk.GetSheetAt(i).SheetName, i);
+            pages.CreateSheet(wk.GetSheetAt(i).SheetName, i, index == i ? true : false);
         }
 
-        LoadSheet(PlayerPrefs.GetInt("Index") == 0 ? 1 : PlayerPrefs.GetInt("Index"));
+        LoadSheet(index);
     }
 
     public void LoadSheet(int index)
@@ -63,14 +71,9 @@ public class GameManager : MonoBehaviour
 
         PlayerPrefs.SetInt("Index", index);
 
-        if (index > wk.NumberOfSheets)
-            index = 1;
-
         sheet = wk.GetSheetAt(index);
 
         Day curDay = NewDay();
-
-        row = sheet.GetRow(6);
 
         bool skipLesson = true;
 
@@ -140,8 +143,11 @@ public class GameManager : MonoBehaviour
         StopAllCoroutines();
     }
 
-    private IEnumerator InfoCor()
-    { 
+    private IEnumerator InfoCor(bool val)
+    {
+        if (!val)
+            infoTxt.GetComponent<TMP_Text>().text = "Не удалось скачать";
+
         infoTxt.SetActive(true);
 
         yield return new WaitForSeconds(2);

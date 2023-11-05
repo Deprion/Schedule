@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 public static class Loader
 {
@@ -9,7 +10,7 @@ public static class Loader
 
     public static Action<bool> FileLoaded;
 
-    public static async void GetFile(int index)
+    public static async Task GetFile(int index)
     {
         using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get,
         "https://www.sevsu.ru/univers/shedule/");
@@ -32,18 +33,19 @@ public static class Loader
 
         string m = regex.Matches(source)[index].Value;
 
-        DownloadFile(m);
+        await DownloadFile(m);
 
         response.Dispose();
     }
 
-    private static async void DownloadFile(string str)
+    private static async Task DownloadFile(string str)
     {
         try
         {
             using (var stream = await httpClient.GetStreamAsync("https://sevsu.ru/" + str))
             {
-                using (var fileStream = new FileStream(GameManager.Path, FileMode.OpenOrCreate))
+                using (var fileStream = new FileStream(GameManager.Path, FileMode.OpenOrCreate, 
+                    FileAccess.Write, FileShare.None, 81920, true))
                 {
                     await stream.CopyToAsync(fileStream);
                 }
