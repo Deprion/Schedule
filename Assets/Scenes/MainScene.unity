@@ -676,6 +676,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sheetPrefab: {fileID: 5093891055654153517, guid: 53a8afac942019042ac5f99eff2c5d1f, type: 3}
   parent: {fileID: 1852702563}
+  material: {fileID: 2100000, guid: 17997938152e2fd40a0b451f36fd490e, type: 2}
 --- !u!1 &510080490
 GameObject:
   m_ObjectHideFlags: 0

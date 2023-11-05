@@ -72,35 +72,56 @@ public class GameManager : MonoBehaviour
 
         row = sheet.GetRow(6);
 
-        curDay.Label(row.GetCell(47).StringCellValue +
-                    "\n" + row.GetCell(48).StringCellValue);
+        bool skipLesson = true;
 
-        for (int i = 7; i <= sheet.LastRowNum; i++)
+        for (int i = sheet.LastRowNum; i >= 6; i--)
         {
             row = sheet.GetRow(i);
 
             if (row == null) continue;
 
-            if (!string.IsNullOrEmpty(row.GetCell(47).StringCellValue))
+            string lesson = string.Empty;
+
+            if (!string.IsNullOrEmpty(row.GetCell(51).StringCellValue))
             {
-                curDay = NewDay();
-                curDay.Label(row.GetCell(47).StringCellValue +
-                    "\n" + row.GetCell(48).StringCellValue);
+                string lessonType = row.GetCell(52).StringCellValue.Replace("\n", " ");
+
+                if (lessonType.Contains("Л"))
+                    lessonType = "<color=blue>" + lessonType;
+                else
+                    lessonType = "<color=red>" + lessonType;
+
+                lesson = row.GetCell(51).StringCellValue + " " + lessonType;
+                skipLesson = false;
             }
 
-            if (string.IsNullOrEmpty(row.GetCell(51).StringCellValue)) continue;
+            if (skipLesson) goto check;
 
             string number = row.GetCell(49).NumericCellValue.ToString();
             string time = row.GetCell(50).StringCellValue;
-            string lesson = row.GetCell(51).StringCellValue;
 
-            curDay.AddLesson($"№{number} {time}", lesson);
+            curDay.AddLesson($"№{number}\n{time}", lesson);
+
+        check:
+            if (!string.IsNullOrEmpty(row.GetCell(47).StringCellValue))
+            {
+                curDay.Label(row.GetCell(47).StringCellValue +
+                    "\n" + row.GetCell(48).StringCellValue);
+
+                if (i > 10)
+                {
+                    curDay = NewDay();
+                    skipLesson = true;
+                }
+            }
         }
     }
 
     private Day NewDay()
     {
         var obj = Instantiate(dayPrefab, parent, false);
+
+        obj.transform.SetAsFirstSibling();
 
         return obj.GetComponent<Day>();
     }

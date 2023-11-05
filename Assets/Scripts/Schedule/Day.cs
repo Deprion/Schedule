@@ -13,7 +13,10 @@ public class Day : MonoBehaviour
 
     public void AddLesson(string time, string name)
     {
-        Instantiate(lessonPrefab, transform, false).
-            GetComponent<Lesson>().Init(time, name);
+        var obj = Instantiate(lessonPrefab, transform, false);
+
+        obj.GetComponent<Lesson>().Init(time, name);
+
+        obj.transform.SetSiblingIndex(1);
     }
 }
