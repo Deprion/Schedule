@@ -20,6 +20,8 @@ public class GameManager : MonoBehaviour
 
     public static string Path;
 
+    private static string uni = "<h4>Гуманитарно-педагогический институт</h4>";
+
     private async void Awake()
     {
         inst = this;
@@ -28,7 +30,7 @@ public class GameManager : MonoBehaviour
 
         // 2 PIN, 83 Language
         Loader.FileLoaded += FileLoaded;
-        await Loader.GetFile(83);
+        await Loader.GetFile(uni);
     }
 
     private XSSFWorkbook wk;
@@ -85,7 +87,7 @@ public class GameManager : MonoBehaviour
 
             string lesson = string.Empty;
 
-            if (!string.IsNullOrEmpty(row.GetCell(51).StringCellValue))
+            if (row.GetCell(51) != null && !string.IsNullOrEmpty(row.GetCell(51).StringCellValue))
             {
                 string lessonType = row.GetCell(52).StringCellValue.Replace("\n", " ");
 

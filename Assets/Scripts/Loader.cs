@@ -10,7 +10,7 @@ public static class Loader
 
     public static Action<bool> FileLoaded;
 
-    public static async Task GetFile(int index)
+    public static async Task GetFile(string index)
     {
         using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get,
         "https://www.sevsu.ru/univers/shedule/");
@@ -31,7 +31,9 @@ public static class Loader
 
         Regex regex = new Regex(@"univers/shedule/download\W*php\?file=\S*""");
 
-        string m = regex.Matches(source)[index].Value;
+        source = source.Remove(0, source.IndexOf(index));
+
+        string m = regex.Matches(source)[0].Value;
 
         await DownloadFile(m);
 
